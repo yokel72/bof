@@ -26,4 +26,6 @@ for i in range(100, args.max_num_bytes+1, 100):
 
     except:
         print "Error connecting to service..."
+        if len(buf) > 100:
+            print "Crash occurred with buffer length: " + str(len(buf))
         exit()

@@ -10,7 +10,7 @@
 # Credit to Justin Steven and his 'dostackbufferoverflowgood' tutorial
 # https://github.com/justinsteven/dostackbufferoverflowgood
 
-import socket, functions, argparse
+import functions, argparse
 
 # get parameters
 RHOST = functions.getRhost()

