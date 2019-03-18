@@ -39,6 +39,24 @@ def getRport():
         writeParamToFile("RPORT", RPORT)
         return int(RPORT)
 
+# return local host (listening) IP address
+def getLhost():
+    try:
+        return params.LHOST
+    except:
+        LHOST = raw_input("LHOST: ")
+        writeParamToFile("LHOST", '\"' + LHOST + '\"')
+        return LHOST
+
+# return local host (listening) port
+def getLport():
+    try:
+        return params.LPORT
+    except:
+        LPORT = raw_input("LPORT: ")
+        writeParamToFile("LPORT", LPORT)
+        return int(LPORT)
+
 # return max buffer length
 def getBufTotlen():
     try:
@@ -65,6 +83,28 @@ def getPtrJmpEsp():
         ptr_jmp_esp = raw_input("ptr_jmp_esp: ")
         writeParamToFile("ptr_jmp_esp", ptr_jmp_esp)
         return int(ptr_jmp_esp, 16)
+
+# return bad characters
+def getBadChars():
+    try:
+        # return [hex(x) for x in params.badchars]
+        return params.badchars
+    except:
+        input = raw_input("Enter bad characters in hex format, no spaces, eg. 0x0A,0x7B: ")
+        input = input.split(",")   # split out by comma delimeter
+
+        badchars = []
+
+        for i in range(0, len(input)):
+            input[i] = int(input[i], 16)  # convert from str to hex int
+            badchars.append(input[i])      # append bad char to badchars list
+
+        # remove any duplicates
+        badchars = list(dict.fromkeys(badchars))
+
+        # writeParamToFile("badchars", '\"' + badchars + '\"')
+        writeParamToFile("badchars", badchars)
+        return badchars
 
 # connect to remote host (target) and send buffer
 # return 0 for success; return 1 for failure

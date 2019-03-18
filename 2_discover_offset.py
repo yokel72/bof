@@ -3,7 +3,6 @@
 # Generates and sends a unique pattern to a service as part of the process in
 # developing a Windows x86 reverse shell stack buffer overflow
 # Saved Return Pointer overwrite exploit.
-# Uses Metasploit's msf-pattern_create tool.
 # Parameters are saved in params.py for persistence.
 # Delete params.py and params.pyc to reset them; or simply edit params.py
 #

@@ -43,6 +43,9 @@ if args.additional_bchars is not None:
 
 print "badchars =", [hex(x) for x in badchars]
 
+# TODO check to see if badchars already exists...
+functions.writeParamToFile("badchars", badchars)
+
 # generate the string
 for i in range(0x00, 0xFF+1):   # range(0x00, 0xFF) only returns up to 0xFE
     if i not in badchars:       # skip the badchars
